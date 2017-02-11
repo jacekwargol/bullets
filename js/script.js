@@ -54,8 +54,12 @@ var player = {
     gameCtx.fillRect(this.posX, this.posY, ELEMENT_SIZE, ELEMENT_SIZE);
   },
   move: function() {
-    this.posX += this.speed * this.dirX;
-    this.posY += this.speed * this.dirY;
+    var newX = this.posX + this.speed * this.dirX;
+    var newY = this.posY + this.speed * this.dirY;
+    if (collision(newX, newY)) return;
+
+    this.posX = newX;
+    this.posY = newY;
   }
 }
 
@@ -83,6 +87,16 @@ function playerControls() {
       if (key.which == 37 || key.which == 39) player.dirX = 0;
       if (key.which == 38 || key.which == 40) player.dirY = 0;
     });
+}
+
+
+function collision(x, y) {
+  if (x < 0 ||
+        x >= GAME_WIDTH ||
+        y < 0 ||
+        y >= GAME_HEIGHT) {
+          return true;
+        }
 }
 
 
