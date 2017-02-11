@@ -97,6 +97,8 @@ function collision(x, y) {
         y >= GAME_HEIGHT) {
           return true;
         }
+  return map[Math.floor(x/ELEMENT_SIZE)][Math.floor(y/ELEMENT_SIZE)] != 0;
+
 }
 
 
