@@ -6,13 +6,14 @@ var ELEMENT_SIZE = 20;
 
 
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
-function init() {
-  drawMap();
-}
+
 
 function gameLoop() {
-  draw();
-  update();
+  gameCtx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  drawMap();
+  player.draw();
+  player.move();
+  playerControls();
   setTimeout(gameLoop, 1000 / 30); // 30 FPS
 }
 
@@ -22,28 +23,17 @@ function drawMap() {
   for (i = 0; i < map.length; i++) {
     for (j = 0; j < map[0].length; j ++) {
       if (map[i][j] == 1) {
-
         gameCtx.fillRect(i*ELEMENT_SIZE, j*ELEMENT_SIZE, ELEMENT_SIZE, ELEMENT_SIZE);
       }
     }
   }
-  // map.forEach(function(row, i) {
-  //   row.forEach(function(tile, j) {
-  //     console.log(tile, i, j);
-  //     // if (tile == 1) {
-  //       gameCtx.fillRect(i*ELEMENT_SIZE, j*ELEMENT_SIZE, ELEMENT_SIZE, ELEMENT_SIZE);
-  //     // }
-  //   });
-  // });
 }
 
 
 function generateMap(width, height) {
   var map = new Array(width);
-  console.log(map.length);
   for (i = 0; i < width; i++) {
     map[i] = new Array(height);
-    console.log(map[i].length);
     for (j = 0; j < height; j++) {
       if (i == 0 || i == width-1 || j == 0 || j == height-1) map[i][j] = 1;
       else map[i][j] = 0;
@@ -52,4 +42,48 @@ function generateMap(width, height) {
   return map;
 }
 
-init();
+
+var player = {
+  posX: 50,
+  posY: 50,
+  speed: 10,
+  dirX: 0, // -1 for left, 1 for right, 0 if not moving
+  dirY: 0, // -1 for down, 1 for up
+  draw: function() {
+    gameCtx.fillStyle = 'blue';
+    gameCtx.fillRect(this.posX, this.posY, ELEMENT_SIZE, ELEMENT_SIZE);
+  },
+  move: function() {
+    this.posX += this.speed * this.dirX;
+    this.posY += this.speed * this.dirY;
+  }
+}
+
+function playerControls() {
+  $(document).keydown(function(key) {
+      switch (key.which) {
+        case 37: //left
+          player.dirX = -1;
+          break;
+        case 39: //right
+          player.dirX = 1;
+          break;
+        case 38: // up
+          player.dirY = -1;
+          break;
+        case 40: // down
+          player.dirY = 1;
+          break;
+        default: return;
+      }
+    key.preventDefault();
+  });
+
+    $(document).keyup(function(key) {
+      if (key.which == 37 || key.which == 39) player.dirX = 0;
+      if (key.which == 38 || key.which == 40) player.dirY = 0;
+    });
+}
+
+
+gameLoop();
