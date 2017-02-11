@@ -6,6 +6,9 @@ var ELEMENT_SIZE = 20;
 
 
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
+map[5][5] = 1;
+
+var enemy = generateEnemy();
 
 
 function gameLoop() {
@@ -14,6 +17,8 @@ function gameLoop() {
   player.draw();
   player.move();
   playerControls();
+  enemy.draw();
+  enemy.move();
   setTimeout(gameLoop, 1000 / 30); // 30 FPS
 }
 
@@ -44,22 +49,22 @@ function generateMap(width, height) {
 
 
 var player = {
-  posX: 50,
-  posY: 50,
+  x: 50,
+  y: 50,
   speed: 10,
   dirX: 0, // -1 for left, 1 for right, 0 if not moving
   dirY: 0, // -1 for down, 1 for up
   draw: function() {
     gameCtx.fillStyle = 'blue';
-    gameCtx.fillRect(this.posX, this.posY, ELEMENT_SIZE, ELEMENT_SIZE);
+    gameCtx.fillRect(this.x, this.y, ELEMENT_SIZE, ELEMENT_SIZE);
   },
   move: function() {
-    var newX = this.posX + this.speed * this.dirX;
-    var newY = this.posY + this.speed * this.dirY;
+    var newX = this.x + this.speed * this.dirX;
+    var newY = this.y + this.speed * this.dirY;
     if (collision(newX, newY)) return;
 
-    this.posX = newX;
-    this.posY = newY;
+    this.x = newX;
+    this.y = newY;
   }
 }
 
@@ -90,6 +95,45 @@ function playerControls() {
 }
 
 
+function Enemy(x, y, dirX, dirY) {
+  this.color =  'red';
+  this.x = x;
+  this.y = y;
+  this.speed = 10;
+  this.dirX = dirX;
+  this.dirY = dirY;
+}
+Enemy.prototype.draw = function() {
+    gameCtx.fillStyle = this.color;
+    gameCtx.fillRect(this.x, this.y, ELEMENT_SIZE, ELEMENT_SIZE);
+}
+Enemy.prototype.move = function() {
+    var newX = this.x + this.speed * this.dirX;
+    var newY = this.y + this.speed * this.dirY;
+    if (collision(newX, newY)) {
+      this.dirX *= -1;
+      this.dirY *= -1;
+    }
+    this.x = newX;
+    this.y = newY;
+}
+
+
+function generateEnemy() {
+  var x = Math.floor(Math.random() * GAME_WIDTH);
+  var y = Math.floor(Math.random() * GAME_HEIGHT);
+  // while (collision(x, y)) {
+  //   x = Math.floor(Math.random()) * GAME_WIDTH;
+  //   y = Math.floor(Math.random() * GAME_HEIGHT);
+  // }
+
+  var directions = [-1, 0, 1];
+  var dirX = randomChoice(directions);
+  var dirY = randomChoice(directions);
+  return new Enemy(x, y, dirX, dirY);
+}
+
+
 function collision(x, y) {
   if (x < 0 ||
         x >= GAME_WIDTH ||
@@ -99,6 +143,11 @@ function collision(x, y) {
         }
   return map[Math.floor(x/ELEMENT_SIZE)][Math.floor(y/ELEMENT_SIZE)] != 0;
 
+}
+
+
+function randomChoice(choices) {
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 
