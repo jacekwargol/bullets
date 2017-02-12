@@ -4,6 +4,7 @@ var GAME_WIDTH = gameCanvas.width;
 var GAME_HEIGHT = gameCanvas.height;
 var ELEMENT_SIZE = 20;
 
+window.addEventListener('mousemove', playerRotate, false);
 
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
 map[5][5] = 1;
@@ -52,9 +53,14 @@ var player = {
   speed: 10,
   dirX: 0, // -1 for left, 1 for right, 0 if not moving
   dirY: 0, // -1 for down, 1 for up
+  rotation: 0,
   draw: function() {
+    gameCtx.save();
     gameCtx.fillStyle = 'blue';
-    gameCtx.fillRect(this.x, this.y, ELEMENT_SIZE, ELEMENT_SIZE);
+    gameCtx.translate(this.x + ELEMENT_SIZE/2, this.y + ELEMENT_SIZE/2);
+    gameCtx.rotate(this.rotation);
+    gameCtx.fillRect(-ELEMENT_SIZE/2, -ELEMENT_SIZE/2, ELEMENT_SIZE, ELEMENT_SIZE);
+    gameCtx.restore();
   },
   move: function() {
     var newX = this.x + this.speed * this.dirX;
@@ -64,6 +70,14 @@ var player = {
     this.x = newX;
     this.y = newY;
   }
+}
+
+function playerRotate(e) {
+  var pos = getMousePos(e);
+  var posX = pos.x;
+  var posY = pos.y;
+  var angle = Math.atan2(posY - player.y, posX - player.x);
+  player.rotation = angle;
 }
 
 function playerControls() {
@@ -166,6 +180,14 @@ function borderCollision(x, y) {
   return map[Math.floor(x/ELEMENT_SIZE)][Math.floor(y/ELEMENT_SIZE)] != 0;
 }
 
+
+function getMousePos(e) {
+  var rect = gameCanvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
 
 function randomChoice(choices) {
   return choices[Math.floor(Math.random() * choices.length)];
