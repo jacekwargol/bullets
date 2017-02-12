@@ -1,3 +1,6 @@
+// TODO: add inheritance, width and height property for objects
+
+
 var gameCanvas = document.getElementById('game-main');
 var gameCtx = gameCanvas.getContext('2d');
 var GAME_WIDTH = gameCanvas.width;
@@ -126,7 +129,7 @@ function handlePlayer() {
   player.draw();
   player.move();
   playerControls();
-  playerEnemyCollision();
+  playerEnemyOrBulletCollision();
 }
 
 
@@ -210,22 +213,39 @@ function handleEnemies() {
     enemy.draw();
     enemy.move();
   });
+  enemyBulletCollision();
 }
 
-function playerEnemyCollision() {
-  enemies.forEach(function(enemy, i) {
-    if (objectCollision(player, enemy)) {
+function playerEnemyOrBulletCollision() {
+  enemies.forEach(function(enemy) {
+    if (objectCollision(player, enemy, ELEMENT_SIZE, ELEMENT_SIZE)) {
       player.alive = false;
     }
   });
+  // bullets.forEach(function(bullet) {
+  //   if (objectCollision(player, bullet)) {
+  //     player.alive = false;
+  //   }
+  // });
 }
 
+function enemyBulletCollision() {
+  enemies.forEach(function(enemy, i) {
+    bullets.forEach(function(bullet, j) {
+      // console.log(enemy.x, bullet.x, enemy.y, bullet.y);
+      if (objectCollision(enemy, bullet, ELEMENT_SIZE, 7)) {
+        enemies.splice(i, 1);
+        bullets.splice(j, 1);
+      }
+    });
+  });
+}
 
-function objectCollision(a, b) {
-  return a.x < b.x + ELEMENT_SIZE &&
-a.x + ELEMENT_SIZE > b.x &&
-a.y < b.y + ELEMENT_SIZE &&
-a.y + ELEMENT_SIZE > b.y
+function objectCollision(a, b, sizeA, sizeB) {
+  return a.x < b.x + sizeB &&
+a.x + sizeA > b.x &&
+a.y < b.y + sizeB &&
+a.y + sizeA > b.y
 }
 
 function borderCollision(x, y) {
