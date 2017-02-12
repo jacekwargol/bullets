@@ -84,6 +84,7 @@ function playerRotate(e) {
   var posY = pos.y;
   var angle = Math.atan2(posY - player.y, posX - player.x);
   player.rotation = angle;
+  console.log(angle);
 }
 
 function playerShoot(e) {
