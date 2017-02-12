@@ -19,9 +19,14 @@ var bullets = [];
 function gameLoop() {
   gameCtx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   drawMap();
-  handlePlayer();
-  handleEnemies();
-  handleBullets();
+  if (player.alive) {
+    handlePlayer();
+    handleEnemies();
+    handleBullets();
+  }
+  else {
+    drawGameOverScreen();
+  }
   setTimeout(gameLoop, 1000 / 30); // 30 FPS
 }
 
@@ -52,6 +57,7 @@ function generateMap(width, height) {
 
 
 var player = {
+  alive: true,
   x: 50,
   y: 50,
   speed: 10,
@@ -209,7 +215,7 @@ function handleEnemies() {
 function playerEnemyCollision() {
   enemies.forEach(function(enemy, i) {
     if (objectCollision(player, enemy)) {
-      enemies.splice(i, 1);
+      player.alive = false;
     }
   });
 }
@@ -243,6 +249,15 @@ function getMousePos(e) {
 
 function randomChoice(choices) {
   return choices[Math.floor(Math.random() * choices.length)];
+}
+
+
+function drawGameOverScreen() {
+  gameCtx.save();
+  gameCtx.fillStyle = 'black';
+  gameCtx.font = '70px Comic Sans';
+  gameCtx.fillText("Game Over", 300, 200);
+  gameCtx.restore();
 }
 
 
