@@ -180,7 +180,9 @@ function spawnBullet(e) {
   var mag = Math.sqrt(dx*dx + dy*dy);
   var velX = dx / mag;
   var velY = dy / mag;
-  return new Bullet(player.x + 30, player.y+20, velX, velY);
+  var x = 30 * Math.cos(player.rotation) - 15*Math.sin(player.rotation);
+  var y = 30 * Math.sin(player.rotation) + 15*Math.cos(player.rotation);
+  return new Bullet(player.x + x, player.y + y, velX, velY);
 }
 
 function handleBullets() {
