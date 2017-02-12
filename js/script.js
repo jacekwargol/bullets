@@ -11,10 +11,14 @@ window.addEventListener('mousemove', playerRotate);
 window.addEventListener('click', playerShoot);
 
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
-map[5][5] = 1;
+for(var i = 0; i < 29; i++) {
+  map[5][i] = 1;
+}
+
 
 var enemies = [];
-enemies.push(generateEnemy());
+var maxNoEnemies = 2;
+spawnEnemies(maxNoEnemies);
 
 var bullets = [];
 
@@ -24,6 +28,10 @@ function gameLoop() {
   drawMap();
   if (player.alive) {
     handlePlayer();
+    if (enemies.length == 0) {
+      bullets = [];
+      spawnEnemies(maxNoEnemies += 1);
+    }
     handleEnemies();
     handleBullets();
   }
@@ -207,13 +215,19 @@ Enemy.prototype.move = function() {
 }
 
 function generateEnemy() {
-  var x = Math.floor(Math.random() * GAME_WIDTH) + 30;
-  var y = Math.floor(Math.random() * GAME_HEIGHT) + 30;
+  var x = Math.floor(Math.random() * GAME_WIDTH - 30) + 30;
+  var y = Math.floor(Math.random() * GAME_HEIGHT - 30) + 30;
 
   var directions = [-1, 0, 1];
   var dirX = randomChoice(directions);
   var dirY = randomChoice(directions);
   return new Enemy(x, y, dirX, dirY);
+}
+
+function spawnEnemies(noEnemies) {
+  for(i = 0; i < noEnemies; i++) {
+    enemies.push(generateEnemy());
+  }
 }
 
 function handleEnemies() {
@@ -223,6 +237,8 @@ function handleEnemies() {
   });
   enemyBulletCollision();
 }
+
+
 
 function playerEnemyOrBulletCollision() {
   enemies.forEach(function(enemy) {
@@ -236,7 +252,6 @@ function playerEnemyOrBulletCollision() {
     }
   });
 }
-
 function enemyBulletCollision() {
   enemies.forEach(function(enemy, i) {
     bullets.forEach(function(bullet, j) {
@@ -247,14 +262,12 @@ function enemyBulletCollision() {
     });
   });
 }
-
 function objectCollision(a, b, sizeA, sizeB) {
   return a.x < b.x + sizeB &&
 a.x + sizeA > b.x &&
 a.y < b.y + sizeB &&
 a.y + sizeA > b.y
 }
-
 function borderCollision(x, y) {
   if (x < 0 ||
         x >= GAME_WIDTH ||
@@ -273,6 +286,7 @@ function getMousePos(e) {
     y: e.clientY - rect.top
   };
 }
+
 
 function randomChoice(choices) {
   return choices[Math.floor(Math.random() * choices.length)];
