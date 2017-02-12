@@ -4,7 +4,8 @@ var GAME_WIDTH = gameCanvas.width;
 var GAME_HEIGHT = gameCanvas.height;
 var ELEMENT_SIZE = 20;
 
-window.addEventListener('mousemove', playerRotate, false);
+window.addEventListener('mousemove', playerRotate);
+window.addEventListener('click', playerShoot);
 
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
 map[5][5] = 1;
@@ -12,12 +13,15 @@ map[5][5] = 1;
 var enemies = [];
 enemies.push(generateEnemy());
 
+var bullets = [];
+
 
 function gameLoop() {
   gameCtx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   drawMap();
   handlePlayer();
   handleEnemies();
+  handleBullets();
   setTimeout(gameLoop, 1000 / 30); // 30 FPS
 }
 
@@ -56,9 +60,11 @@ var player = {
   rotation: 0,
   draw: function() {
     gameCtx.save();
-    gameCtx.fillStyle = 'blue';
     gameCtx.translate(this.x + ELEMENT_SIZE/2, this.y + ELEMENT_SIZE/2);
     gameCtx.rotate(this.rotation);
+    gameCtx.fillStyle = 'black';
+    gameCtx.fillRect(-ELEMENT_SIZE/2, -ELEMENT_SIZE/2+15, 30, 5);
+    gameCtx.fillStyle = 'blue';
     gameCtx.fillRect(-ELEMENT_SIZE/2, -ELEMENT_SIZE/2, ELEMENT_SIZE, ELEMENT_SIZE);
     gameCtx.restore();
   },
@@ -78,6 +84,10 @@ function playerRotate(e) {
   var posY = pos.y;
   var angle = Math.atan2(posY - player.y, posX - player.x);
   player.rotation = angle;
+}
+
+function playerShoot(e) {
+  bullets.push(spawnBullet());
 }
 
 function playerControls() {
@@ -111,6 +121,43 @@ function handlePlayer() {
   player.move();
   playerControls();
   playerEnemyCollision();
+}
+
+
+function Bullet(x, y, dirX, dirY, rotation) {
+  this.color = 'orange';
+  this.x = x;
+  this.y = y;
+  this.speed = 15;
+  this.dirX = dirX;
+  this.dirY = dirY;
+}
+Bullet.prototype.draw = function() {
+  gameCtx.save();
+  gameCtx.fillStyle = 'orange';
+  gameCtx.fillRect(this.x, this.y, 7, 7);
+  gameCtx.restore();
+}
+Bullet.prototype.move = function() {
+  var newX = this.x + this.speed * this.dirX;
+  var newY = this.y + this.speed * this.dirY;
+  if (borderCollision(newX, newY)) {
+    this.dirX *= -1;
+    this.dirY *= -1;
+  }
+  this.x = newX;
+  this.y = newY;
+}
+
+function spawnBullet() {
+  return new Bullet(player.x, player.y, player.dirX, player.dirY, player.rotation);
+}
+
+function handleBullets() {
+  bullets.forEach(function(bullet) {
+    bullet.draw();
+    bullet.move();
+  });
 }
 
 
