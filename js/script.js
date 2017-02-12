@@ -102,16 +102,20 @@ function playerShoot(e) {
 function playerControls() {
   $(document).keydown(function(key) {
       switch (key.which) {
-        case 37: //left
+        case 37: // left arrow
+        case 65: // a key
           player.dirX = -1;
           break;
-        case 39: //right
+        case 39: // right arrow
+        case 68: // d key
           player.dirX = 1;
           break;
-        case 38: // up
+        case 38: // up arrow
+        case 87: // w key
           player.dirY = -1;
           break;
-        case 40: // down
+        case 40: // down arrow
+        case 83: // s key
           player.dirY = 1;
           break;
         default: return;
@@ -120,8 +124,12 @@ function playerControls() {
   });
 
     $(document).keyup(function(key) {
-      if (key.which == 37 || key.which == 39) player.dirX = 0;
-      if (key.which == 38 || key.which == 40) player.dirY = 0;
+      if (key.which == 37 || key.which == 39 || key.which == 65 || key.which == 68) {
+        player.dirX = 0;
+      }
+      if (key.which == 38 || key.which == 40 || key.which == 87 || key.which == 83) {
+        player.dirY = 0;
+      }
     });
 }
 
