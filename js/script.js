@@ -142,8 +142,8 @@ Bullet.prototype.move = function() {
   var newX = this.x + this.velX;
   var newY = this.y + this.velY;
   if (borderCollision(newX, newY)) {
-    this.dirX *= -1;
-    this.dirY *= -1;
+    this.velX *= -1;
+    this.velY *= -1;
   }
   this.x = newX;
   this.y = newY;
