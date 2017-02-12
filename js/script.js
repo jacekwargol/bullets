@@ -164,7 +164,7 @@ function spawnBullet(e) {
   var mag = Math.sqrt(dx*dx + dy*dy);
   var velX = dx / mag;
   var velY = dy / mag;
-  return new Bullet(player.x, player.y, velX, velY);
+  return new Bullet(player.x + 30, player.y+20, velX, velY);
 }
 
 function handleBullets() {
@@ -222,17 +222,16 @@ function playerEnemyOrBulletCollision() {
       player.alive = false;
     }
   });
-  // bullets.forEach(function(bullet) {
-  //   if (objectCollision(player, bullet)) {
-  //     player.alive = false;
-  //   }
-  // });
+  bullets.forEach(function(bullet) {
+    if (objectCollision(player, bullet, ELEMENT_SIZE, 7)) {
+      player.alive = false;
+    }
+  });
 }
 
 function enemyBulletCollision() {
   enemies.forEach(function(enemy, i) {
     bullets.forEach(function(bullet, j) {
-      // console.log(enemy.x, bullet.x, enemy.y, bullet.y);
       if (objectCollision(enemy, bullet, ELEMENT_SIZE, 7)) {
         enemies.splice(i, 1);
         bullets.splice(j, 1);
