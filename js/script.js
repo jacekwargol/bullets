@@ -8,17 +8,15 @@ var ELEMENT_SIZE = 20;
 var map = generateMap(Math.floor(GAME_WIDTH / ELEMENT_SIZE), Math.floor(GAME_HEIGHT / ELEMENT_SIZE));
 map[5][5] = 1;
 
-var enemy = generateEnemy();
+var enemies = [];
+enemies.push(generateEnemy());
 
 
 function gameLoop() {
   gameCtx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
   drawMap();
-  player.draw();
-  player.move();
-  playerControls();
-  enemy.draw();
-  enemy.move();
+  handlePlayer();
+  handleEnemies();
   setTimeout(gameLoop, 1000 / 30); // 30 FPS
 }
 
@@ -61,7 +59,7 @@ var player = {
   move: function() {
     var newX = this.x + this.speed * this.dirX;
     var newY = this.y + this.speed * this.dirY;
-    if (collision(newX, newY)) return;
+    if (borderCollision(newX, newY)) return;
 
     this.x = newX;
     this.y = newY;
@@ -94,6 +92,13 @@ function playerControls() {
     });
 }
 
+function handlePlayer() {
+  player.draw();
+  player.move();
+  playerControls();
+  playerEnemyCollision();
+}
+
 
 function Enemy(x, y, dirX, dirY) {
   this.color =  'red';
@@ -110,7 +115,7 @@ Enemy.prototype.draw = function() {
 Enemy.prototype.move = function() {
     var newX = this.x + this.speed * this.dirX;
     var newY = this.y + this.speed * this.dirY;
-    if (collision(newX, newY)) {
+    if (borderCollision(newX, newY)) {
       this.dirX *= -1;
       this.dirY *= -1;
     }
@@ -118,14 +123,9 @@ Enemy.prototype.move = function() {
     this.y = newY;
 }
 
-
 function generateEnemy() {
-  var x = Math.floor(Math.random() * GAME_WIDTH);
-  var y = Math.floor(Math.random() * GAME_HEIGHT);
-  // while (collision(x, y)) {
-  //   x = Math.floor(Math.random()) * GAME_WIDTH;
-  //   y = Math.floor(Math.random() * GAME_HEIGHT);
-  // }
+  var x = Math.floor(Math.random() * GAME_WIDTH) + 30;
+  var y = Math.floor(Math.random() * GAME_HEIGHT) + 30;
 
   var directions = [-1, 0, 1];
   var dirX = randomChoice(directions);
@@ -133,8 +133,30 @@ function generateEnemy() {
   return new Enemy(x, y, dirX, dirY);
 }
 
+function handleEnemies() {
+  enemies.forEach(function(enemy) {
+    enemy.draw();
+    enemy.move();
+  });
+}
 
-function collision(x, y) {
+function playerEnemyCollision() {
+  enemies.forEach(function(enemy, i) {
+    if (objectCollision(player, enemy)) {
+      enemies.splice(i, 1);
+    }
+  });
+}
+
+
+function objectCollision(a, b) {
+  return a.x < b.x + ELEMENT_SIZE &&
+a.x + ELEMENT_SIZE > b.x &&
+a.y < b.y + ELEMENT_SIZE &&
+a.y + ELEMENT_SIZE > b.y
+}
+
+function borderCollision(x, y) {
   if (x < 0 ||
         x >= GAME_WIDTH ||
         y < 0 ||
@@ -142,7 +164,6 @@ function collision(x, y) {
           return true;
         }
   return map[Math.floor(x/ELEMENT_SIZE)][Math.floor(y/ELEMENT_SIZE)] != 0;
-
 }
 
 
