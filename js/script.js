@@ -84,11 +84,10 @@ function playerRotate(e) {
   var posY = pos.y;
   var angle = Math.atan2(posY - player.y, posX - player.x);
   player.rotation = angle;
-  console.log(angle);
 }
 
 function playerShoot(e) {
-  bullets.push(spawnBullet());
+  bullets.push(spawnBullet(e));
 }
 
 function playerControls() {
@@ -125,13 +124,13 @@ function handlePlayer() {
 }
 
 
-function Bullet(x, y, dirX, dirY, rotation) {
+function Bullet(x, y, velX, velY) {
   this.color = 'orange';
   this.x = x;
   this.y = y;
   this.speed = 15;
-  this.dirX = dirX;
-  this.dirY = dirY;
+  this.velX = velX * this.speed;
+  this.velY = velY * this.speed;
 }
 Bullet.prototype.draw = function() {
   gameCtx.save();
@@ -140,8 +139,8 @@ Bullet.prototype.draw = function() {
   gameCtx.restore();
 }
 Bullet.prototype.move = function() {
-  var newX = this.x + this.speed * this.dirX;
-  var newY = this.y + this.speed * this.dirY;
+  var newX = this.x + this.velX;
+  var newY = this.y + this.velY;
   if (borderCollision(newX, newY)) {
     this.dirX *= -1;
     this.dirY *= -1;
@@ -150,8 +149,13 @@ Bullet.prototype.move = function() {
   this.y = newY;
 }
 
-function spawnBullet() {
-  return new Bullet(player.x, player.y, player.dirX, player.dirY, player.rotation);
+function spawnBullet(e) {
+  var dx = e.x - player.x;
+  var dy = e.y - player.y;
+  var mag = Math.sqrt(dx*dx + dy*dy);
+  var velX = dx / mag;
+  var velY = dy / mag;
+  return new Bullet(player.x, player.y, velX, velY);
 }
 
 function handleBullets() {
